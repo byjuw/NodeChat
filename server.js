@@ -13,7 +13,7 @@ var users = []
 var messages_collection = null
 var database = null
 
-MongoClient.connect("mongodb://lnchat-4700:Le-b00F6ALEKaiRLRXdS@lnchat-4700.mongo.dbs.appsdeck.eu:31135/lnchat-4700", function(err, db) {
+MongoClient.connect(process.env.MONGO_URL, function(err, db) {
 
 	if(err) {
 		console.log(err)
