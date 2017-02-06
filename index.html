@@ -2,6 +2,8 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Super chat</title>
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -31,6 +33,7 @@
 					</button>
 				</p>
 			</div>
+
 			<h1>Chat LN</h1>
 			<div class="row">
 				<div class="col-md-2">
@@ -56,7 +59,7 @@
 						<h4 class="modal-title">Se connecter</h4>
 					</div>
 					<div class="modal-body">
-						<div class="form-group">
+						<div class="form-group" id="pseudo-group">
 							<label for="pseudo">Votre pseudo</label>
 							<input type="text" name="pseudo" id="pseudo" class="form-control">
 						</div>
@@ -87,12 +90,28 @@
 			</div>
 		</div>
 
+		<div class="modal fade" tabindex="-1" role="dialog" id="new_mp">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content" action="/" method="post" id="form_mp">
+					<div class="modal-header">
+						<h4 class="modal-title"></h4>
+					</div>
+					<div class="modal-body">
+						<p></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<script src="http://192.168.1.108:1337/socket.io/socket.io.js"></script>
+		<script src="http://localhost:1337/socket.io/socket.io.js"></script>
 		<script>
 
-			var socket = io.connect('http://192.168.1.108:1337')
+			var socket = io.connect('http://localhost:1337')
 			var pseudo = null
 			var mp_contact = null
 
@@ -102,9 +121,6 @@
 			$('#form_login').submit(function(){
 				pseudo = $('#pseudo').val()
 				socket.emit('nouveau_client', pseudo)
-
-				$('#login').modal('hide')
-				$('#message').focus()
 
 				return false
 			})
@@ -120,7 +136,7 @@
 				var message = $('#message').val()
 
 				socket.emit('envoi_message', message)
-				$('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><strong>'+pseudo+' : </strong>'+message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+				$('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><strong>'+pseudo+' : </strong>'+message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getFullYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
 				$('#message').val('').focus()
 
 				scrollBottom()
@@ -130,7 +146,20 @@
 
 			$('#form_mp').submit(function(){
 				var message = $('#message_prive').val()
-				socket.emit('message_prive', {message:message, sender:pseudo})
+				socket.emit('message_prive', {message:message, sender:pseudo, receiver:mp_contact})
+				mp_contact = null
+				$('#message_prive').val('')
+				$('#mp').modal('hide')
+				return false
+			})
+
+			socket.on('OK_user', function(){
+				$('#login').modal('hide')
+				$('#message').focus()
+			})
+
+			socket.on('not_OK_user', function(){
+				$('#pseudo-group').addClass('has-error').append('<span class="help-block">Pseudo déjà prit ma biche !</span>')
 			})
 
 			socket.on('utilisateurs', function(users){
@@ -145,6 +174,9 @@
 				$('.user').click(function(){
 					mp_contact = $(this).attr('data-userid')
 					$('#mp').modal('show')
+					$('#mp').on('shown.bs.modal', function () {
+						$('#message_prive').focus()
+					})					
 				})
 			})
 
@@ -157,13 +189,17 @@
 				$('.user').click(function(){
 					mp_contact = $(this).attr('data-userid')
 					$('#mp').modal('show')
+					$('#mp').on('shown.bs.modal', function () {
+						$('#message_prive').focus()
+					})
 				})
 
 				scrollBottom()
 			})
+
 			socket.on('reception_message', function(data){
 				var date = new Date(data.time)
-				$('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><strong>'+data.pseudo+' : </strong>'+data.message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+				$('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><strong>'+data.pseudo+' : </strong>'+data.message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getFullYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
 				scrollBottom()
 			})
 
@@ -176,10 +212,18 @@
 				
 				for(id in data){
 					var date = new Date(data[id].time)
-					$('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><strong>'+data[id].user+' : </strong>'+data[id].message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+					$('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><strong>'+data[id].user+' : </strong>'+data[id].message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getFullYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
 				}
 				scrollBottom()
 				
+			})
+
+			socket.on('new_mp', function(data){
+				
+				$('#new_mp .modal-header h4').html("Message de : "+data.sender)
+				$('#new_mp .modal-body p').html(data.message)
+				$('#new_mp').modal('show')
+
 			})
 
 			var scrollBottom = function(){

@@ -13,7 +13,7 @@ var users = []
 var messages_collection = null
 var database = null
 
-MongoClient.connect("mongodb://localhost:27017/LNChat", function(err, db) {
+MongoClient.connect("mongodb://localhost:27017/local", function(err, db) {
 
 	if(err) {
 		console.log(err)
@@ -26,7 +26,13 @@ MongoClient.connect("mongodb://localhost:27017/LNChat", function(err, db) {
 
 		socket.on('nouveau_client', function(data){
 
-			console.log(socket.id)
+			for(id in users){
+				if(data == users[id].pseudo){
+					socket.emit('not_OK_user', {})
+					return
+				}
+			}
+			socket.emit('OK_user', {})
 			
 			messages_collection.find().sort({time:-1}).limit(20).toArray(function(err, item){
 
@@ -62,7 +68,7 @@ MongoClient.connect("mongodb://localhost:27017/LNChat", function(err, db) {
 				console.log(result)
 			})
 
-			socket.broadcast.emit('reception_message', {message:eMessage, pseudo:socket.pseudo})
+			socket.broadcast.emit('reception_message', {message:eMessage, pseudo:socket.pseudo, time:new Date()})
 		})
 
 		socket.on('disconnect', function(){
@@ -74,6 +80,10 @@ MongoClient.connect("mongodb://localhost:27017/LNChat", function(err, db) {
 			socket.broadcast.emit('disconnected', {pseudo:socket.pseudo})
 			socket.broadcast.emit('utilisateurs', users)
 
+		})
+
+		socket.on('message_prive', function(data){
+			socket.broadcast.to(data.receiver).emit('new_mp', data);
 		})
 	})
 })
