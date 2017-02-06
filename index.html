@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>E-volvers chat !</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <style type="text/css">
+            #zone_chat{
+                height: 80vh;
+                overflow-y: auto;
+            }
+
+            #message{
+                width: 50vw;
+                margin: 20px 0; 
+            }
+            h2{
+                text-align: center;
+            }
+
+            #pseudo{
+                width: 250px;
+                margin-left: 10px;
+            }
+        </style>
+
+    </head>
+    <body>
+        <!-- Alert pseudo vide -->
+<!--         <div class="alert alert-danger" role="alert" id="alert">
+          <a href="#" class="alert-link">Pas de pseudo choisis</a>
+          <form id="danger">
+              <button type="button" class="btn btn-danger">Choisir un pseudo</button>
+          </form>
+        </div> -->
+
+        <!-- Modal pseudo -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="login">
+          <div class="modal-dialog" role="document">
+            <form class="modal-content form-inline" action="/" method="POST" id="form_login">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Bienvenu !</h4>
+              </div>
+              <div class="modal-body">
+                    <label for="pseudo">Pseudo :</label><input type="text" name="pseudo" id="pseudo" class="form-control">
+                    <div class="alert alert-danger" role="alert" id="noPseudo">Choisis un pseudo</div>
+              </div>
+              <div class="modal-footer">
+                <input type="submit" class="btn btn-primary" value="Connexion">
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="container-fluid">
+            <h1>Chat E-volvers</h1>
+            <div class="row">
+
+                <!-- Zone chat, là où les messages apparaissent -->
+                <div class="col-md-9">
+                    <section id="zone_chat">
+                        
+                    </section>
+                </div>
+
+                <!-- Membres connectés -->
+                <div class="col-md-3">
+                    <h2>Membres connectés</h2>
+                        <section id="online">
+                            <ul class="list-group">
+                            
+                            </ul>
+                        </section>
+                </div>
+            </div>
+
+            <!-- Zone texte envoi message -->
+            <div class="row">
+                <div class="col-xs-12">
+                    <form action="/" method="POST" class="form-inline" id="form_chat">
+                        <input type="text" name="message" id="message" class="form-control">
+                        <input type="submit" id="envoi_message" value="Envoyer" class="btn btn-default">
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+        <script src="http://localhost:1337/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            var socket = io.connect('http://localhost:1337')
+            var pseudo = null
+
+            $('#login').modal('show')
+            $('#pseudo').focus()
+            $('#noPseudo').hide()
+
+            $('#form_login').submit(function(){
+                if($('#pseudo').val()==""){
+                    $('#noPseudo').show()
+                    return false
+                }
+                pseudo = $('#pseudo').val()
+                socket.emit('nouveau_client', pseudo)
+                $('#login').modal('hide')
+                $('#message').focus()
+                return false
+            })
+
+            $('#form_chat').submit(function(){
+                if(pseudo == null){
+                    $('#alert').show()
+                    return false
+                }
+                var message = $('#message').val()
+                socket.emit('envoi_message', message)
+                $('#zone_chat').append('<p><strong>'+pseudo+': </strong>'+message+'</p>')
+                scrollBottom()
+                $('#message').val('').focus()
+                return false
+            })
+
+            $('#danger').click(function(){
+                $('#login').modal('show')
+                $('#alert').hide()
+                return false               
+            })
+
+            socket.on('users', function(users){
+                $('#online').empty()
+                for(id in users){
+                    $('#online').append('<li class="list-group-item"><strong>'+users[id].pseudo+'</strong></li>')
+                }
+            })
+
+
+            socket.on('nouveau_client', function(data){
+                $('#zone_chat').append('<p><strong>'+data.pseudo+'</strong> a rejoint le chat</p>')
+                $('#online').append('<li class="list-group-item"><strong>'+data.pseudo+'</strong></li>')
+                scrollBottom()
+
+            })
+
+            socket.on('disconnected', function(data){
+                $('#zone_chat').append('<p><strong>'+data.pseudo+'</strong> a quitté le chat</p>')
+                scrollBottom()
+            })
+
+            socket.on('old_message', function(data){
+                for(id in data){
+                    var date = new Date(data[id].time)
+                    $('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getYear()+' '+date.getHours()+':'+date.getMinutes()+'</small></p></div></div>')
+                }
+                scrollBottom()
+            })
+
+            socket.on('reception_message', function(data){
+                var date = new Date()
+                $('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+date.getMonth()+'/'+date.getYear()+' '+(date.getHours()+1)+':'+date.getMinutes()+'</small></p></div></div>')
+                scrollBottom()
+            })
+
+            var scrollBottom = function(){
+                $("#zone_chat").scrollTop($("#zone_chat")[0].scrollHeight)
+            }
+
+        </script>
+    </body>
+</html>
+
+
