@@ -1,11 +1,7 @@
 {
   "name": "NodeChat",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
-  "scripts": {
-    "start": "node index.js"
-  },
+  "description": "Chat pour la formation LN",
   "author": "Byjuw",
   "license": "ISC",
   "dependencies": {
