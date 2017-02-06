@@ -119,7 +119,8 @@
                 }
                 var message = $('#message').val()
                 socket.emit('envoi_message', message)
-                $('#zone_chat').append('<p><strong>'+pseudo+': </strong>'+message+'</p>')
+                var date = new Date()
+                $('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><p><strong>'+pseudo+': </strong>'+message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+date.getMonth()+'/'+date.getFullYear()+' '+(date.getHours()+1)+':'+date.getMinutes()+'</small></p></div></div>')
                 scrollBottom()
                 $('#message').val('').focus()
                 return false
@@ -154,14 +155,14 @@
             socket.on('old_message', function(data){
                 for(id in data){
                     var date = new Date(data[id].time)
-                    $('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getYear()+' '+date.getHours()+':'+date.getMinutes()+'</small></p></div></div>')
+                    $('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+'</small></p></div></div>')
                 }
                 scrollBottom()
             })
 
             socket.on('reception_message', function(data){
                 var date = new Date()
-                $('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+date.getMonth()+'/'+date.getYear()+' '+(date.getHours()+1)+':'+date.getMinutes()+'</small></p></div></div>')
+                $('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+date.getMonth()+'/'+date.getFullYear()+' '+(date.getHours()+1)+':'+date.getMinutes()+'</small></p></div></div>')
                 scrollBottom()
             })
 
