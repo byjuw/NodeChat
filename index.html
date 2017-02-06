@@ -1,177 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>E-volvers chat !</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <style type="text/css">
-            #zone_chat{
-                height: 80vh;
-                overflow-y: auto;
-            }
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Super chat</title>
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<style>
+			#zone_chat{
+				width:100%;
+				height: 80vh;
+				overflow-y:scroll;
+				padding: 10px;
+			}
+			#message{
+				width:75%;
+			}
+			#envoi_message{
+				width:18%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container-fluid">
+			<div class="alert alert-danger" role="alert" style="display:none;" id="notLoggedIn">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<p>Aucun pseudo renseigné</p>
+				<p>
+					<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#login">
+						Se connecter
+					</button>
+				</p>
+			</div>
+			<h1>Chat LN</h1>
+			<div class="row">
+				<div class="col-md-2">
+					<ul class="list-group" id="online_users">
+					</ul>
+				</div>
+				<div class="col-md-10">
+					<section id="zone_chat">
+						
+					</section>
+					<form action="/" method="post" class="form-inline" id="form_chat">
+						<input type="text" name="message" id="message" class="form-control">
+						<input type="submit" id="envoi_message" value="Envoyer" class="btn btn-primary">
+					</form>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade" tabindex="-1" role="dialog" id="login">
+			<div class="modal-dialog" role="document">
+				<form class="modal-content" action="/" method="post" id="form_login">
+					<div class="modal-header">
+						<h4 class="modal-title">Se connecter</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="pseudo">Votre pseudo</label>
+							<input type="text" name="pseudo" id="pseudo" class="form-control">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<input type="submit" class="btn btn-primary" value="Connexion">
+					</div>
+				</form>
+			</div>
+		</div>
 
-            #message{
-                width: 50vw;
-                margin: 20px 0; 
-            }
-            h2{
-                text-align: center;
-            }
+		<div class="modal fade" tabindex="-1" role="dialog" id="mp">
+			<div class="modal-dialog" role="document">
+				<form class="modal-content" action="/" method="post" id="form_mp">
+					<div class="modal-header">
+						<h4 class="modal-title">Message privé</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="message_prive">Votre message</label>
+							<input type="text" name="message_prive" id="message_prive" class="form-control">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<input type="submit" class="btn btn-primary" value="Envoyer">
+					</div>
+				</form>
+			</div>
+		</div>
 
-            #pseudo{
-                width: 250px;
-                margin-left: 10px;
-            }
-        </style>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="http://192.168.1.108:1337/socket.io/socket.io.js"></script>
+		<script>
 
-    </head>
-    <body>
-        <!-- Alert pseudo vide -->
-<!--         <div class="alert alert-danger" role="alert" id="alert">
-          <a href="#" class="alert-link">Pas de pseudo choisis</a>
-          <form id="danger">
-              <button type="button" class="btn btn-danger">Choisir un pseudo</button>
-          </form>
-        </div> -->
+			var socket = io.connect('http://192.168.1.108:1337')
+			var pseudo = null
+			var mp_contact = null
 
-        <!-- Modal pseudo -->
-        <div class="modal fade" tabindex="-1" role="dialog" id="login">
-          <div class="modal-dialog" role="document">
-            <form class="modal-content form-inline" action="/" method="POST" id="form_login">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Bienvenu !</h4>
-              </div>
-              <div class="modal-body">
-                    <label for="pseudo">Pseudo :</label><input type="text" name="pseudo" id="pseudo" class="form-control">
-                    <div class="alert alert-danger" role="alert" id="noPseudo">Choisis un pseudo</div>
-              </div>
-              <div class="modal-footer">
-                <input type="submit" class="btn btn-primary" value="Connexion">
-              </div>
-            </form>
-          </div>
-        </div>
+			$('#login').modal('show')
+			$('#pseudo').focus()
 
-        <div class="container-fluid">
-            <h1>Chat E-volvers</h1>
-            <div class="row">
+			$('#form_login').submit(function(){
+				pseudo = $('#pseudo').val()
+				socket.emit('nouveau_client', pseudo)
 
-                <!-- Zone chat, là où les messages apparaissent -->
-                <div class="col-md-9">
-                    <section id="zone_chat">
-                        
-                    </section>
-                </div>
+				$('#login').modal('hide')
+				$('#message').focus()
 
-                <!-- Membres connectés -->
-                <div class="col-md-3">
-                    <h2>Membres connectés</h2>
-                        <section id="online">
-                            <ul class="list-group">
-                            
-                            </ul>
-                        </section>
-                </div>
-            </div>
+				return false
+			})
 
-            <!-- Zone texte envoi message -->
-            <div class="row">
-                <div class="col-xs-12">
-                    <form action="/" method="POST" class="form-inline" id="form_chat">
-                        <input type="text" name="message" id="message" class="form-control">
-                        <input type="submit" id="envoi_message" value="Envoyer" class="btn btn-default">
-                    </form>
-                </div>
-            </div>
-        </div>
+			$('#form_chat').submit(function(){
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+				if(pseudo == null){
+					$("#notLoggedIn").fadeIn(1000)
+					return false
+				}
 
-        <script src="http://localhost:1337/socket.io/socket.io.js"></script>
-        <script type="text/javascript">
-            var socket = io.connect('http://localhost:1337')
-            var pseudo = null
+				var date = new Date()
+				var message = $('#message').val()
 
-            $('#login').modal('show')
-            $('#pseudo').focus()
-            $('#noPseudo').hide()
+				socket.emit('envoi_message', message)
+				$('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><strong>'+pseudo+' : </strong>'+message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+				$('#message').val('').focus()
 
-            $('#form_login').submit(function(){
-                if($('#pseudo').val()==""){
-                    $('#noPseudo').show()
-                    return false
-                }
-                pseudo = $('#pseudo').val()
-                socket.emit('nouveau_client', pseudo)
-                $('#login').modal('hide')
-                $('#message').focus()
-                return false
-            })
+				scrollBottom()
 
-            $('#form_chat').submit(function(){
-                if(pseudo == null){
-                    $('#alert').show()
-                    return false
-                }
-                var message = $('#message').val()
-                socket.emit('envoi_message', message)
-                var date = new Date()
-                $('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><p><strong>'+pseudo+': </strong>'+message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+date.getMonth()+'/'+date.getFullYear()+' '+(date.getHours()+1)+':'+date.getMinutes()+'</small></p></div></div>')
-                scrollBottom()
-                $('#message').val('').focus()
-                return false
-            })
+				return false
+			})
 
-            $('#danger').click(function(){
-                $('#login').modal('show')
-                $('#alert').hide()
-                return false               
-            })
+			$('#form_mp').submit(function(){
+				var message = $('#message_prive').val()
+				socket.emit('message_prive', {message:message, sender:pseudo})
+			})
 
-            socket.on('users', function(users){
-                $('#online').empty()
-                for(id in users){
-                    $('#online').append('<li class="list-group-item"><strong>'+users[id].pseudo+'</strong></li>')
-                }
-            })
+			socket.on('utilisateurs', function(users){
+				$('#online_users').empty()
+				for(id in users){
+					if(users[id].pseudo == pseudo){
+						$('#online_users').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item active user">'+users[id].pseudo+'</button>')
+					}else{
+						$('#online_users').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item user">'+users[id].pseudo+'</button>')
+					}
+				}
+				$('.user').click(function(){
+					mp_contact = $(this).attr('data-userid')
+					$('#mp').modal('show')
+				})
+			})
 
+			socket.on('nouveau_client', function(data){
+				
+				$('#online_users').append('<button type="button" class="list-group-item user" data-userid="'+data.userid+'">'+data.pseudo+'</button>')
 
-            socket.on('nouveau_client', function(data){
-                $('#zone_chat').append('<p><strong>'+data.pseudo+'</strong> a rejoint le chat</p>')
-                $('#online').append('<li class="list-group-item"><strong>'+data.pseudo+'</strong></li>')
-                scrollBottom()
+				$('#zone_chat').append('<h3><span class="label label-info">'+data.pseudo+' est connecté</span></h3>')
 
-            })
+				$('.user').click(function(){
+					mp_contact = $(this).attr('data-userid')
+					$('#mp').modal('show')
+				})
 
-            socket.on('disconnected', function(data){
-                $('#zone_chat').append('<p><strong>'+data.pseudo+'</strong> a quitté le chat</p>')
-                scrollBottom()
-            })
+				scrollBottom()
+			})
+			socket.on('reception_message', function(data){
+				var date = new Date(data.time)
+				$('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><strong>'+data.pseudo+' : </strong>'+data.message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+				scrollBottom()
+			})
 
-            socket.on('old_message', function(data){
-                for(id in data){
-                    var date = new Date(data[id].time)
-                    $('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+(date.getMonth()+1)+'/'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes()+'</small></p></div></div>')
-                }
-                scrollBottom()
-            })
+			socket.on('disconnected', function(data){
+				$('#zone_chat').append('<h3><span class="label label-info">'+data.pseudo+' est déconnecté</span></h3>')
+				scrollBottom()
+			})
 
-            socket.on('reception_message', function(data){
-                var date = new Date()
-                $('#zone_chat').append('<div class="panel panel-default"><div class="panel-body"><p><strong>'+data[id].user+': </strong>'+data[id].message+'<br><small class="test-muted pull-right">'+date.getDate()+'/'+date.getMonth()+'/'+date.getFullYear()+' '+(date.getHours()+1)+':'+date.getMinutes()+'</small></p></div></div>')
-                scrollBottom()
-            })
+			socket.on('old_messages', function(data){
+				
+				for(id in data){
+					var date = new Date(data[id].time)
+					$('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><strong>'+data[id].user+' : </strong>'+data[id].message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+				}
+				scrollBottom()
+				
+			})
 
-            var scrollBottom = function(){
-                $("#zone_chat").scrollTop($("#zone_chat")[0].scrollHeight)
-            }
+			var scrollBottom = function(){
+				$('#zone_chat').scrollTop($('#zone_chat')[0].scrollHeight)
+			}
 
-        </script>
-    </body>
+			
+		</script>
+	</body>
 </html>
-
-
