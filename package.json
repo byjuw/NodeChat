@@ -2,13 +2,14 @@
   "name": "NodeChat",
   "version": "1.0.0",
   "description": "",
-  "main": "jquery-3.1.1.min.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "author": "Byjuw",
   "license": "ISC",
   "dependencies": {
-    "mongodb": "^2.2.22"
+    "mongodb": "2.4",
+    "express": "3.x"
   }
 }
