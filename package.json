@@ -1,7 +1,8 @@
 {
   "name": "NodeChat",
   "version": "1.0.0",
-  "description": "Chat pour la formation LN",
+  "description": "Exercice Ligne Numérique : développement d'un Chat avec Node",
+  "main": "server.js",
   "author": "Byjuw",
   "license": "ISC",
   "dependencies": {
