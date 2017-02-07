@@ -5,7 +5,7 @@
   "author": "Byjuw",
   "license": "ISC",
   "dependencies": {
-    "mongodb": "2.4",
+    "mongodb": "^2.2.22",
     "express": "3.x"
   }
 }
