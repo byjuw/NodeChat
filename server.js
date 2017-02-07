@@ -13,7 +13,7 @@ var users = []
 var messages_collection = null
 var database = null
 
-MongoClient.connect("mongodb://localhost:27017/local", function(err, db) {
+MongoClient.connect(process.env.MONGO_URL, function(err, db) {
 
 	if(err) {
 		console.log(err)
@@ -88,4 +88,4 @@ MongoClient.connect("mongodb://localhost:27017/local", function(err, db) {
 	})
 })
 
-server.listen(1337)
+server.listen(process.env.PORT)
