@@ -91,8 +91,8 @@ MongoClient.connect(environnement.db, function(err, db) {
 			socket.broadcast.to(data.receiver).emit('new_mp', data);
 		})
 
-		socket.on('older_messages', function(){
-			messages_collection.find().sort({time:-1}).skip(20).limit(20).toArray(function(err, item){
+		socket.on('older_messages', function(data){
+			messages_collection.find().sort({time:-1}).skip(20*data.cpt).limit(20).toArray(function(err, item){
 
 				if(err){
 					console.log(err)

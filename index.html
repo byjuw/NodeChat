@@ -130,6 +130,7 @@
 
 			var pseudo = null
 			var mp_contact = null
+			var scroll_cpt = 0
 
 			$('#login').modal('show')
 			$('#pseudo').focus()
@@ -247,8 +248,12 @@
 			}
 
 			$('#zone_chat').scroll(function() {
-			    if ($('#zone_chat').scrollTop()) {
-			     	socket.emit('older_messages', {})
+				var scroll_Position = $('#zone_chat').scrollTop()
+				console.log(scroll_Position)
+			    if (scroll_Position == 0) {
+			     	scroll_cpt++
+			     	socket.emit('older_messages', {cpt:scroll_cpt})
+			     	console.log('t')
 			    } 
 			})
 
