@@ -104,16 +104,13 @@
 		<script src="/js/environnement.js"></script>
 		<script>
 
-<<<<<<< HEAD
             var script = document.createElement( 'script' );
             script.src = environnement.socket;
 
             $('body').append(script)
 
 			var socket = io.connect(environnement.localhost)
-=======
-			var socket = io.connect('http://localhost:1337/')
->>>>>>> origin/master
+
 			var pseudo = null
 			var mp_contact = null
 
