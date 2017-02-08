@@ -20,27 +20,27 @@
 				</p>
 			</div>
 
-			<nav class="navbar navbar-default">
-				    <!-- Brand and toggle get grouped for better mobile display -->
-				    <div class="navbar-header">
-				      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-				        <span class="sr-only">Toggle navigation</span>
-				        <span class="icon-bar"></span>
-				        <span class="icon-bar"></span>
-				        <span class="icon-bar"></span>
-				      </button>
-				      <a class="navbar-brand" href="#">Chat LN</a>
-				    </div>
-				    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				    	<ul class="list-group" id="online_users">
-						</ul>
-				    </div>
+			<nav class="navbar navbar-default" id="main_nav">
+			    <!-- Brand and toggle get grouped for better mobile display -->
+			    <div class="navbar-header">
+			      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+			        <span class="sr-only">Toggle navigation</span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			      </button>
+			      <a class="navbar-brand" href="#">Chat LN</a>
+			    </div>
+			    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			    	<ul class="list-group currentUsers" id="online_users-sm">
+					</ul>
+			    </div>
 			</nav>
 
 			<div class="row">
 				<div class="col-md-2 userList">
 					<h1>Chat Ln</h1>
-					<ul class="list-group" id="online_users">
+					<ul class="list-group currentUsers" id="online_users">
 					</ul>
 				</div>
 				<div class="col-md-10">
@@ -179,12 +179,12 @@
 			})
 
 			socket.on('utilisateurs', function(users){
-				$('#online_users').empty()
+				$('.currentUsers').empty()
 				for(id in users){
 					if(users[id].pseudo == pseudo){
-						$('#online_users').append('<span class="list-group-item active">'+users[id].pseudo+'</span>')
+						$('.currentUsers').append('<span class="list-group-item active">'+users[id].pseudo+'</span>')
 					}else{
-						$('#online_users').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item user">'+users[id].pseudo+'</button>')
+						$('.currentUsers').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item user">'+users[id].pseudo+'</button>')
 					}
 				}
 				$('.user').click(function(){
@@ -198,7 +198,7 @@
 
 			socket.on('nouveau_client', function(data){
 				
-				$('#online_users').append('<button type="button" class="list-group-item user" data-userid="'+data.userid+'">'+data.pseudo+'</button>')
+				$('.currentUsers').append('<button type="button" class="list-group-item user" data-userid="'+data.userid+'">'+data.pseudo+'</button>')
 
 				$('#zone_chat').append('<h3><span class="label label-info">'+data.pseudo+' est connecté</span></h3>')
 
