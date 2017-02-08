@@ -153,7 +153,7 @@
 				$('#online_users').empty()
 				for(id in users){
 					if(users[id].pseudo == pseudo){
-						$('#online_users').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item active user">'+users[id].pseudo+'</button>')
+						$('#online_users').append('<span class="list-group-item active">'+users[id].pseudo+'</span>')
 					}else{
 						$('#online_users').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item user">'+users[id].pseudo+'</button>')
 					}
