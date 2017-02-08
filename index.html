@@ -247,6 +247,18 @@
 				$('#zone_chat').scrollTop($('#zone_chat')[0].scrollHeight)
 			}
 
+			$('#zone_chat').scroll(function() {
+			    if ($('#zone_chat').scrollTop()) {
+			     	socket.emit('older_messages', {})
+			    } 
+			})
+
+			socket.on('older_messages', function(data){
+				for(id in data){
+					var date = new Date(data[id].time)
+					$('#zone_chat').prepend('<div class="panel panel-default"><div class="panel-body"><strong>'+data[id].user+' : </strong>'+data[id].message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getFullYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+				}
+			})
 			
 		</script>
 	</body>
