@@ -18,7 +18,7 @@ var users = []
 var messages_collection = null
 var database = null
 
-var environnement = require('./environnement')
+var environnement = require('./environnement_server')
 
 MongoClient.connect(environnement.db, function(err, db) {
 
