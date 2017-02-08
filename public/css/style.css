@@ -23,14 +23,16 @@
     	display: block;
 	}
 	#message{
-		width: 80%;
-		margin: 0 auto;
-    	display: block;
+		width: 100%;
+		margin-bottom: 10px;
 	}
 	#envoi_message {
-		width: 80%;
-		margin: 0 auto;
-    	display: block;
+		width: 100%;
+	}
+	#form_chat {
+		position: fixed;
+		bottom: 30px;
+		width: 100%;
 	}
 }
 
