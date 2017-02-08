@@ -1,19 +1,23 @@
-var app = require('express')()
+var express = require('express')
+var app = express()
 var server = require('http').createServer(app)
 var io = require('socket.io').listen(server)
 var ent = require('ent')
+var path = require('path')
 
 var MongoClient = require('mongodb').MongoClient;
 
 app.get('/', function(request, response){
 	response.sendFile(__dirname + '/index.html')
 })
+app.use(express.static(path.join(__dirname + '/public')));
 
 var users = []
 var messages_collection = null
 var database = null
 
-MongoClient.connect(process.env.MONGO_URL, function(err, db) {
+
+MongoClient.connect('mongodb://localhost:27017/LNChat', function(err, db) {
 
 	if(err) {
 		console.log(err)
@@ -88,4 +92,4 @@ MongoClient.connect(process.env.MONGO_URL, function(err, db) {
 	})
 })
 
-server.listen(process.env.PORT)
+server.listen(1337)
