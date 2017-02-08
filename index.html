@@ -32,8 +32,14 @@
 						
 					</section>
 					<form action="/" method="post" class="form-inline" id="form_chat">
-						<input type="text" name="message" id="message" class="form-control">
-						<input type="submit" id="envoi_message" value="Envoyer" class="btn btn-primary">
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-9">
+							<input type="text" name="message" id="message" class="form-control">
+						</div>
+						<div class="col-xs-12 col-sm-12 col-md-3">
+							<input type="submit" id="envoi_message" value="Envoyer" class="btn btn-primary">
+						</div>
+					</div>
 					</form>
 				</div>
 			</div>
@@ -48,7 +54,7 @@
 					<div class="modal-body">
 						<div class="form-group" id="pseudo-group">
 							<label for="pseudo">Votre pseudo</label>
-							<input type="text" name="pseudo" id="pseudo" class="form-control">
+							<input type="text" required name="pseudo" id="pseudo" class="form-control">
 						</div>
 					</div>
 					<div class="modal-footer">
@@ -98,7 +104,13 @@
 		<script src="http://localhost:1337/socket.io/socket.io.js"></script>
 		<script>
 
-			var socket = io.connect('http://localhost:1337/')
+            var script = document.createElement( 'script' );
+            script.src = environnement.socket;
+
+            $('body').append(script)
+
+			var socket = io.connect(environnement.localhost)
+
 			var pseudo = null
 			var mp_contact = null
 
@@ -153,7 +165,7 @@
 				$('#online_users').empty()
 				for(id in users){
 					if(users[id].pseudo == pseudo){
-						$('#online_users').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item active user">'+users[id].pseudo+'</button>')
+						$('#online_users').append('<span class="list-group-item active">'+users[id].pseudo+'</span>')
 					}else{
 						$('#online_users').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item user">'+users[id].pseudo+'</button>')
 					}

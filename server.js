@@ -12,11 +12,15 @@ app.get('/', function(request, response){
 })
 app.use(express.static(path.join(__dirname + '/public')));
 
+app.use(express.static(path.join(__dirname + '/public')))
+
 var users = []
 var messages_collection = null
 var database = null
 
-MongoClient.connect("mongodb://localhost:27017/local", function(err, db) {
+var environnement = require('./environnement')
+
+MongoClient.connect(environnement.db, function(err, db) {
 
 	if(err) {
 		console.log(err)
