@@ -4,6 +4,7 @@ var server = require('http').createServer(app)
 var io = require('socket.io').listen(server)
 var ent = require('ent')
 var path = require('path')
+var environnement = require('./environnement_server')
 
 var MongoClient = require('mongodb').MongoClient;
 
@@ -16,8 +17,6 @@ app.use(express.static(path.join(__dirname + '/public')))
 var users = []
 var messages_collection = null
 var database = null
-
-var environnement = require('./environnement_server')
 
 MongoClient.connect(environnement.db, function(err, db) {
 

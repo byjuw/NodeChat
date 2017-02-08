@@ -1,8 +1,8 @@
 var environnement_server = {
-	db : process.env.MONGO_URL,
+	db : "mongodb://localhost:27017/local",
 	socket : "https://lnchat.scalingo.io/socket.io/socket.io.js",
 	localhost : "https://lnchat.scalingo.io",
-	port: process.env.PORT
+	port: 1337
 }
 
 module.exports = environnement_server;
