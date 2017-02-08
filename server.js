@@ -16,8 +16,7 @@ var users = []
 var messages_collection = null
 var database = null
 
-
-MongoClient.connect('mongodb://localhost:27017/LNChat', function(err, db) {
+MongoClient.connect("mongodb://localhost:27017/local", function(err, db) {
 
 	if(err) {
 		console.log(err)
