@@ -94,4 +94,4 @@ MongoClient.connect(environnement.db, function(err, db) {
 	})
 })
 
-server.listen(1337)
+server.listen(environnement.port)
