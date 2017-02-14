@@ -38,25 +38,32 @@
 			</nav>
 
 			<div class="row">
-				<div class="col-md-2 userList">
+				<div class="col-md-12 userList">
 					<h1>Chat Ln</h1>
-					<ul class="list-group currentUsers" id="online_users">
+					<ul class="list-group" id="online_users">
+					  <!-- Nav tabs -->
+					  <ul class="nav nav-stacked col-md-2 currentUsers">
+					    
+					  </ul>
+
+					  <!-- Tab panes -->
+					  <div class="tab-content col-md-10">
+					    <div role="tabpanel" class="tab-pane active" id="general">
+						    <section id="zone_chat">
+							</section>
+							<form action="/" method="post" class="form-inline" id="form_chat">
+								<div class="row">
+									<div class="col-xs-12 col-sm-12 col-md-9">
+										<input type="text" name="message" id="message" class="form-control">
+									</div>
+									<div class="col-xs-12 col-sm-12 col-md-3">
+										<input type="submit" id="envoi_message" value="Envoyer" class="btn btn-primary">
+									</div>
+								</div>
+							</form>
+						</div>
+					  </div>
 					</ul>
-				</div>
-				<div class="col-md-10">
-					<section id="zone_chat">
-						
-					</section>
-					<form action="/" method="post" class="form-inline" id="form_chat">
-					<div class="row">
-						<div class="col-xs-12 col-sm-12 col-md-9">
-							<input type="text" name="message" id="message" class="form-control">
-						</div>
-						<div class="col-xs-12 col-sm-12 col-md-3">
-							<input type="submit" id="envoi_message" value="Envoyer" class="btn btn-primary">
-						</div>
-					</div>
-					</form>
 				</div>
 			</div>
 		</div>
@@ -131,6 +138,7 @@
 			var pseudo = null
 			var mp_contact = null
 			var scroll_cpt = 0
+			var idClient = null
 
 			$('#login').modal('show')
 			$('#pseudo').focus()
@@ -161,14 +169,6 @@
 				return false
 			})
 
-			$('#form_mp').submit(function(){
-				var message = $('#message_prive').val()
-				socket.emit('message_prive', {message:message, sender:pseudo, receiver:mp_contact})
-				mp_contact = null
-				$('#message_prive').val('')
-				$('#mp').modal('hide')
-				return false
-			})
 
 			socket.on('OK_user', function(){
 				$('#login').modal('hide')
@@ -183,36 +183,52 @@
 				$('.currentUsers').empty()
 				for(id in users){
 					if(users[id].pseudo == pseudo){
-						$('.currentUsers').append('<span class="list-group-item active">'+users[id].pseudo+'</span>')
+						$('.currentUsers').prepend('<li role="presentation" class="list-group-item user"><a role="tab" data-toggle="tab" aria-controls="general" href="#general">Général</a></li>')
+						$('.currentUsers').append('<li id="self" class="list-group-item">'+users[id].pseudo+'</li>')
+						idClient = users[id].userid
 					}else{
-						$('.currentUsers').append('<button type="button" data-userid="'+users[id].userid+'" class="list-group-item user">'+users[id].pseudo+'</button>')
+						$('.currentUsers').append('<li role="presentation" data-userid="'+users[id].userid+'" class="list-group-item user"><a role="tab" data-toggle="tab" aria-controls="'+users[id].userid+'" href="#'+users[id].userid+'">'+users[id].pseudo+'</a></li>')
+						$('.tab-content').append('<div role="tabpanel" class="tab-pane" id="'+users[id].userid+'"><div id="zone_'+users[id].userid+'"></div><form action="/" method="post" class="form-inline envoi_mp" data-userid="'+users[id].userid+'"><div class="row"><div class="col-xs-12 col-sm-12 col-md-9"><input type="text" name="message" id="message_'+users[id].userid+' class="form-control message"></div><div class="col-xs-12 col-sm-12 col-md-3"><input type="submit" id="envoi_'+users[id].userid+'" value="Envoyer" class="btn btn-primary"></div></div></form></div>')
+
+						$('.envoi_mp').submit(function(){
+							var message = $('input',this).val()
+							console.log(message)
+							mp_contact = $(this).attr('data-userid')
+							socket.emit('message_prive', {message:message, sender:pseudo, receiver:mp_contact, idSender:idClient})
+							var zone = "#zone_"+mp_contact
+							console.log(zone)
+							var date = new Date()
+							$(zone).append('<div class="panel panel-default"><div class="panel-body"><strong>'+pseudo+' : </strong>'+message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getFullYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+							$('.message').val('')
+							return false
+						})
 					}
 				}
-				$('.user').click(function(){
-					mp_contact = $(this).attr('data-userid')
-					$('#mp').modal('show')
-					$('#mp').on('shown.bs.modal', function () {
-						$('#message_prive').focus()
-					})					
-				})
 			})
 
 			socket.on('nouveau_client', function(data){
 				
-				$('.currentUsers').append('<button type="button" class="list-group-item user" data-userid="'+data.userid+'">'+data.pseudo+'</button>')
+				$('.currentUsers').append('<li role="presentation" data-userid="'+data.userid+'" class="list-group-item user"><a role="tab" data-toggle="tab" aria-controls="'+data.userid+'" href="#'+data.userid+'">'+data.pseudo+'</a></li>')
+										$('.tab-content').append('<div role="tabpanel" class="tab-pane" id="'+data.userid+'"></div>')
 
-				$('#zone_chat').append('<h3><span class="label label-info">'+data.pseudo+' est connecté</span></h3>')
-
+				$('#zone_chat').append('<h3><li class="label label-info">'+data.pseudo+' est connecté</li></h3>')
 				$('.user').click(function(){
-					mp_contact = $(this).attr('data-userid')
-					$('#mp').modal('show')
-					$('#mp').on('shown.bs.modal', function () {
-						$('#message_prive').focus()
-					})
+					
 				})
 
 				scrollBottom()
 			})
+
+
+
+			/*$('#form_mp').submit(function(){
+				var message = $('#message_prive').val()
+				socket.emit('message_prive', {message:message, sender:pseudo, receiver:mp_contact, idSender:idClient})
+				mp_contact = null
+				$('#message_prive').val('')
+				$('#mp').modal('hide')
+				return false
+			})*/
 
 			socket.on('reception_message', function(data){
 				var date = new Date(data.time)
@@ -236,10 +252,11 @@
 			})
 
 			socket.on('new_mp', function(data){
+				idConv = '#zone_'+data.idSender
+				$(idConv).append('<div class="panel panel-default"><div class="panel-body"><strong>'+data.pseudo+' : </strong>'+data.message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getFullYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
+				scrollBottom()
 				
-				$('#new_mp .modal-header h4').html("Message de : "+data.sender)
-				$('#new_mp .modal-body p').html(data.message)
-				$('#new_mp').modal('show')
+				
 
 			})
 

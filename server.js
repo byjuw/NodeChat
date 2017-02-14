@@ -88,7 +88,7 @@ MongoClient.connect(environnement.db, function(err, db) {
 		})
 
 		socket.on('message_prive', function(data){
-			socket.broadcast.to(data.receiver).emit('new_mp', data);
+			socket.broadcast.to(data.receiver).emit('new_mp', {idSender:data.idSender, message:data.message, sender:data.sender, time:new Date()});
 		})
 
 		socket.on('older_messages', function(data){
