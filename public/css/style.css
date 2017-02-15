@@ -5,6 +5,20 @@
 	padding: 10px;
 }
 
+.zone_chat {
+	width:100%;
+	height: 80vh;
+	overflow-y:scroll;
+	padding: 10px;
+}
+
+.user:hover,
+.list-group-item.active,
+.list-group-item.active:hover
+{
+	background-color: #eee;
+	border-color: #ddd;
+}
 .user a {
 	padding: 0!important;
 }
@@ -26,11 +40,11 @@
 		margin: 0 auto;
     	display: block;
 	}
-	#message{
-		width: 100%;
+	.message{
+		width: 100%!important;
 		margin-bottom: 10px;
 	}
-	#envoi_message {
+	.envoi_message {
 		width: 100%;
 	}
 	#form_chat {
@@ -45,11 +59,11 @@
 	#main_nav{
 		display: none !important;
 	}
-	#message{
-		width:100%;
+	.message{
+		width:100%!important;
 		margin-bottom: 10px;
 	}
-	#envoi_message{
+	.envoi_message{
 		width:100%;
 	}
 }
