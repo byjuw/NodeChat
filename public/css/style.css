@@ -19,8 +19,14 @@
 	background-color: #eee;
 	border-color: #ddd;
 }
+
 .user a {
-	padding: 0!important;
+	padding: 0 !important;
+}
+
+.glyphicon {
+	float: right;
+	line-height: inherit;
 }
 
 @media screen and (max-width: 767px ) {

@@ -187,7 +187,7 @@
 						$('.currentUsers').append('<li id="self" class="list-group-item">'+users[id].pseudo+'</li>')
 						idClient = users[id].userid
 					}else{
-						$('.currentUsers').append('<li role="presentation" data-userid="'+users[id].userid+'" class="list-group-item user"><a role="tab" data-toggle="tab" aria-controls="'+users[id].userid+'" href="#'+users[id].userid+'">'+users[id].pseudo+'</a></li>')
+						$('.currentUsers').append('<li role="presentation" data-userid="'+users[id].userid+'" class="list-group-item user"><a role="tab" data-toggle="tab" aria-controls="'+users[id].userid+'" href="#'+users[id].userid+'">'+users[id].pseudo+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>')
 						$('.tab-content').append('<div role="tabpanel" class="tab-pane" id="'+users[id].userid+'"><div id="zone_'+users[id].userid+'" class="zone_chat"></div><form action="/" method="post" class="form-inline envoi_mp" data-userid="'+users[id].userid+'"><div class="row"><div class="col-xs-12 col-sm-12 col-md-9"><input type="text" name="message" id="message_'+users[id].userid+'" class="form-control message"></div><div class="col-xs-12 col-sm-12 col-md-3"><input type="submit" id="envoi_'+users[id].userid+'" value="Envoyer" class="btn btn-primary envoi_message"></div></div></form></div>')
 
 						$('.envoi_mp').submit(function(){
@@ -207,7 +207,7 @@
 
 			socket.on('nouveau_client', function(data){
 				
-				$('.currentUsers').append('<li role="presentation" data-userid="'+data.userid+'" class="list-group-item user"><a role="tab" data-toggle="tab" aria-controls="'+data.userid+'" href="#'+data.userid+'">'+data.pseudo+'</a></li>')
+				$('.currentUsers').append('<li role="presentation" data-userid="'+data.userid+'" class="list-group-item user"><a role="tab" data-toggle="tab" aria-controls="'+data.userid+'" href="#'+data.userid+'">'+data.pseudo+'<span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></li>')
 				//$('.tab-content').append('<div role="tabpanel" class="tab-pane" id="'+data.userid+'"></div>')
 
 				$('.tab-content').append('<div role="tabpanel" class="tab-pane" id="'+data.userid+'"><div id="zone_'+data.userid+'" class="zone_chat"></div><form action="/" method="post" class="form-inline envoi_mp" data-userid="'+data.userid+'"><div class="row"><div class="col-xs-12 col-sm-12 col-md-9"><input type="text" name="message" id="message_'+data.userid+'" class="form-control message"></div><div class="col-xs-12 col-sm-12 col-md-3"><input type="submit" id="envoi_'+data.userid+'" value="Envoyer" class="btn btn-primary envoi_message"></div></div></form></div>')
@@ -269,9 +269,7 @@
 				console.log(idConv)
 				var date = new Date()
 				$(idConv).append('<div class="panel panel-default"><div class="panel-body"><strong>'+data.sender+' : </strong>'+data.message+'<br><small class="text-muted pull-right">'+("0" + date.getDate()).slice(-2)+"/"+(("0" + date.getMonth()+1).slice(-2))+"/"+date.getFullYear()+" "+("0" + date.getHours()).slice(-2)+":"+("0" + date.getMinutes()).slice(-2)+'</small></div></div>')
-				scrollBottom()
-				
-				
+				scrollBottom()		
 
 			})
 
